@@ -7,12 +7,13 @@ terraform {
   }
 
     backend "s3" {
-    bucket = "strongdm-challenge-backend-1"
-      key = "strongdm-challenge/terraform.tfstate"
+    bucket = "cssandbox-sdm-k8s"
+      key = "cssandbox-sdm-k8s/terraform.tfstate"
       region = "us-west-2"
     }
 }
 
 provider "aws" {
   region = var.aws_region
+  profile = var.aws_profile
 }
