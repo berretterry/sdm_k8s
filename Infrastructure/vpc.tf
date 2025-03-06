@@ -1,5 +1,5 @@
 ### Creating VPC
-resource "aws_vpc" "sdm_challenge_vpc" {
+resource "aws_vpc" "sdm_k8s_vpc" {
   cidr_block           = var.vpc_cidr
   instance_tenancy     = "default"
   enable_dns_hostnames = true
@@ -10,9 +10,9 @@ resource "aws_vpc" "sdm_challenge_vpc" {
   }
 }
 
-### Creating Web Tier Subnets
+### Creating Public Subnets
 resource "aws_subnet" "web_tier_subnet" {
-  vpc_id                  = aws_vpc.sdm_challenge_vpc.id
+  vpc_id                  = aws_vpc.sdm_k8s_vpc.id
   cidr_block              = var.web_subnet_cidr
   availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
@@ -23,48 +23,35 @@ resource "aws_subnet" "web_tier_subnet" {
   }
 }
 
-### Creating App Tier Subnets
-resource "aws_subnet" "app_tier_subnet" {
-  vpc_id                  = aws_vpc.sdm_challenge_vpc.id
-  cidr_block              = var.app_subnet_cidr
-  availability_zone       = data.aws_availability_zones.available.names[0]
-  map_public_ip_on_launch = false
-
-
-  tags = {
-    Name = "App Tier Private Subnet"
-  }
-}
-
-### Creating Data Tier Subnet
-resource "aws_subnet" "data_tier_subnet" {
-  count = length(var.db_subnet_cidr)
-  vpc_id                  = aws_vpc.sdm_challenge_vpc.id
-  cidr_block              = element(var.db_subnet_cidr, count.index)
+### Creating Private Subnet
+resource "aws_subnet" "private_subnet" {
+  count = length(var.private_subnets)
+  vpc_id                  = aws_vpc.sdm_k8s_vpc.id
+  cidr_block              = element(var.private_subnets, count.index)
   availability_zone       = element(var.aws_azs, count.index)
   map_public_ip_on_launch = false
 
 
   tags = {
-    Name = "Data Tier Private Subnet ${count.index + 1}"
+    Name = "Private Subnet ${count.index + 1}"
   }
 }
 
-resource "aws_db_subnet_group" "data_tier_subnet_group" {
-  name = "data_tier_subnet_group"
-  subnet_ids = [aws_subnet.data_tier_subnet[0].id, aws_subnet.data_tier_subnet[1].id]
+resource "aws_db_subnet_group" "private_subnet_group" {
+  name = "private_subnet_group"
+  subnet_ids = [aws_subnet.private_subnet[0].id, aws_subnet.private_subnet[1].id]
 
   tags = {
-    Name = "data teir subnet group"
+    Name = "private subnet group"
   }
 }
 
 ### Creating VPC Internet Gateway
-resource "aws_internet_gateway" "sdm_challenge_igw" {
-  vpc_id = aws_vpc.sdm_challenge_vpc.id
+resource "aws_internet_gateway" "sdm_k8s_igw" {
+  vpc_id = aws_vpc.sdm_k8s_vpc.id
 
   tags = {
-    Name = "SDM Challenge IGW"
+    Name = "sdm_k8s IGW"
   }
 }
 
@@ -78,9 +65,9 @@ resource "aws_eip" "nat_eip" {
 }
 
 ### Creating NAT Gateway for App Subnet Internet Access
-resource "aws_nat_gateway" "sdm_challenge_nat" {
+resource "aws_nat_gateway" "sdm_k8s_nat" {
   allocation_id = aws_eip.nat_eip.id
-  subnet_id     = aws_subnet.web_tier_subnet.id
+  subnet_id     = aws_subnet.public_subnet.id
 
   depends_on = [aws_internet_gateway.sdm_challenge_igw]
 

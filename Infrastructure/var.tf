@@ -17,17 +17,12 @@ variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
 
-variable "web_subnet_cidr" {
-  type = string
-  default = "10.0.1.0/24"
+variable "public_subnets" {
+  type = list(string)
+  default = ["10.0.1.0/24", "10.0.2.0/24"]
 }
 
-variable "app_subnet_cidr" {
-  type = string
-  default = "10.0.2.0/24"
-}
-
-variable "db_subnet_cidr" {
+variable "private_subnets" {
   type = list(string)
   default = ["10.0.3.0/24", "10.0.4.0/24"]
 }
@@ -40,18 +35,14 @@ variable "mysql_pass" {
   type = string
 }
 
-variable "server_ami" {
-  default = "ami-0aff18ec83b712f05"
-}
-
 variable "gateway_ami" {
-  default = "ami-05312be62d5121de5"
-}
-
-variable "server_type" {
-  default = "t2.micro"
+  default = "ami-027951e78de46a00e"
 }
 
 variable "gateway_type" {
-  default = "t2.medium"
+  default = "t2.micro"
+}
+
+variable "aws_profile" {
+  default = "berret-terry"
 }

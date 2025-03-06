@@ -64,3 +64,15 @@ output "db_relay_private_ip" {
   description = "db relay private ip"
   value = aws_instance.db_relay.private_ip
 }
+
+output "cluster_name" {
+  value = aws_eks_cluster.eks_cluster.name
+}
+
+output "cluster_endpoint" {
+  value = aws_eks_cluster.eks_cluster.endpoint
+}
+
+output "cluster_ca_certificate" {
+  value = aws_eks_cluster.eks_cluster.certificate_authority[0].data
+}
