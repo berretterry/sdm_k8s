@@ -27,14 +27,6 @@ variable "private_subnets" {
   default = ["10.0.3.0/24", "10.0.4.0/24"]
 }
 
-variable "mysql_username" {
-  type = string
-}
-
-variable "mysql_pass" {
-  type = string
-}
-
 variable "gateway_ami" {
   default = "ami-027951e78de46a00e"
 }
