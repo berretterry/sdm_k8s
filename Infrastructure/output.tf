@@ -20,6 +20,11 @@ output "sdmgw_private_ip" {
   value = aws_instance.sdmqw_server.private_ip
 }
 
+output "sdmgw_instance_id" {
+  description = "StrongDM Gateway Public IP"
+  value = aws_instance.sdmqw_server.id
+}
+
 output "sdmgw_public_ip" {
   description = "StrongDM Gateway Public IP"
   value = aws_instance.sdmqw_server.public_ip

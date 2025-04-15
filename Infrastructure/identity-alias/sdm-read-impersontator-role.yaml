@@ -1,0 +1,19 @@
+# impersonator minimal permissions 
+# needed to elevate privileges.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: read-impersonator
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources:
+  - groups
+  verbs: 
+  - impersonate
+  resourceNames: 
+  - read-only
+# impersonate all users.
+# needed for Identity Aliases to work.
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["users"]
+  verbs: ["impersonate"]

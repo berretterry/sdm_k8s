@@ -38,3 +38,7 @@ variable "gateway_type" {
 variable "aws_profile" {
   default = "berret-terry"
 }
+
+variable "ec2_instance_profile" {
+  default = "sdm-gateway"
+}

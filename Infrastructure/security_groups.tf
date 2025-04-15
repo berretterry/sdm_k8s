@@ -25,6 +25,14 @@ resource "aws_vpc_security_group_ingress_rule" "sdmgw_port" {
   to_port = 5000
 }
 
+resource "aws_vpc_security_group_ingress_rule" "sdmgw_port" {
+  security_group_id = aws_security_group.sdmgw_sg.id
+  cidr_ipv4 = "0.0.0.0/0"
+  from_port = 22
+  ip_protocol = "tcp"
+  to_port = 22
+}
+
 ### Creating Security Group for EKS
 #resource "aws_security_group" "eks_sg" {
 #  name        = "eks_sg"

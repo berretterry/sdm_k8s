@@ -1,28 +1,24 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
+# Provides an EKS Cluster
+resource "aws_eks_cluster" "eks_cluster" {
+  name     = var.cluster_name
+  role_arn = aws_iam_role.eks_cluster_role.arn
 
-module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "20.8.5"
+  version = "1.32"
 
-  cluster_name    = sdm_k8s_cluster
-  cluster_version = "1.31"
+  vpc_config {
+    subnet_ids = var.private_subnets
+    vpc_id     = aws_vpc.sdm_k8s_vpc.id
+  }
 
-  cluster_endpoint_public_access           = true
-  enable_cluster_creator_admin_permissions = true
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_cluster_policy_attachment,
+    aws_iam_role_policy_attachment.eks_service_policy_attachment,
+  ]
 
   cluster_addons = {
     aws-ebs-csi-driver = {
       service_account_role_arn = module.irsa-ebs-csi.iam_role_arn
     }
-  }
-
-  vpc_id     = aws_vpc.sdm_k8s_vpc.id
-  subnet_ids = var.private_subnets
-
-  eks_managed_node_group_defaults = {
-    ami_type = "AL2_x86_64"
-
   }
 
   cluster_security_group_additional_rules = {
@@ -35,28 +31,30 @@ module "eks" {
       source_security_group_id   = aws_security_group.eks_sg.id
     }
   }
+}
 
-  eks_managed_node_groups = {
-    one = {
-      name = "node-group-1"
+# Provides an EKS Node Group 
+resource "aws_eks_node_group" "eks_node_group" {
+  cluster_name    = aws_eks_cluster.eks_cluster.name
+  node_group_name = var.node_group_name
+  node_role_arn   = aws_iam_role.eks_node_group_role.arn
+  subnet_ids      = var.private_subnets
 
-      instance_types = ["t3.small"]
-
-      min_size     = 1
-      max_size     = 3
-      desired_size = 2
-    }
-
-    two = {
-      name = "node-group-2"
-
-      instance_types = ["t3.small"]
-
-      min_size     = 1
-      max_size     = 2
-      desired_size = 1
-    }
+  scaling_config {
+    desired_size = 2
+    max_size     = 2
+    min_size     = 2
   }
+
+  update_config {
+    max_unavailable = 1
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_worker_node_policy_attachment,
+    aws_iam_role_policy_attachment.eks_cni_policy_attachment,
+    aws_iam_role_policy_attachment.ec2_container_registry_readonly,
+  ]
 }
 
 
