@@ -8,5 +8,5 @@ subjects:
     namespace: ""  # Required for Group, leave empty
 roleRef:
   kind: ClusterRole
-  name: read  # Replace with the desired ClusterRole
+  name: view  # Replace with the desired ClusterRole
   apiGroup: rbac.authorization.k8s.io

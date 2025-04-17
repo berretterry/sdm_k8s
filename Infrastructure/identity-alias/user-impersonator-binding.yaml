@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sdm-impersonator-binding
+subjects:
+# Specify the Kubernetes User or ServiceAccount whose credentials you are using in StrongDM
+- kind: User
+  name: cs-sandbox-eks # "name" is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: sdm-impersonator
+  apiGroup: rbac.authorization.k8s.io
